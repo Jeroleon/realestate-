@@ -1,0 +1,32 @@
+/* Center the card */
+:host {
+    display: block;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+/* Style the lightning-card */
+lightning-card {
+    --sds-c-card-color-background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+/* Add spacing between input fields */
+lightning-input,
+lightning-combobox {
+    margin-bottom: 16px;
+}
+
+/* Style the submit button */
+lightning-button {
+    width: 100%;
+    margin-top: 10px;
+    --sds-c-button-brand-color-background: #0070d2;
+    --sds-c-button-brand-color-border: #005fb2;
+}
+
+lightning-button:hover {
+    --sds-c-button-brand-color-background: #005fb2;
+}

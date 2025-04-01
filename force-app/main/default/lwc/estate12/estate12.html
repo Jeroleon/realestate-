@@ -1,0 +1,22 @@
+<template>
+    <lightning-card title="Submit Your Interest">
+   
+    
+        <lightning-input label="firstName" name="firstName" type="text" onchange={handleChange}></lightning-input>
+        <lightning-input label="lastName" name="lastName" type="text" onchange={handleChange}></lightning-input>
+
+        <lightning-input label="Phone" name="phone" type="tel" onchange={handleChange}></lightning-input>
+        <lightning-input label="Email" name="email" type="email" onchange={handleChange}></lightning-input>
+
+        <lightning-combobox 
+            label="Apartment Type" 
+            name="apartmentType"
+            options={apartmentOptions} 
+            onchange={handleChange}>
+        </lightning-combobox>
+
+        <lightning-input label="Budget" name="budget" type="number" onchange={handleChange}></lightning-input>
+
+        <lightning-button label="Submit" variant="brand" onclick={handleSubmit}></lightning-button>
+    </lightning-card>
+</template>
