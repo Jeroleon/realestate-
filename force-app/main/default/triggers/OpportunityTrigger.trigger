@@ -8,8 +8,10 @@ trigger OpportunityTrigger on Opportunity (after update) {
 
         if (oldOpp.StageName != opp.StageName && 
             (opp.StageName == 'Site Visit Scheduled' ||
+             opp.StageName == 'New' ||
              opp.StageName == 'Advance Payment Received' ||
              opp.StageName == 'Legal Document Acquisition' ||
+             opp.StageName == 'Bank Loan' ||
              opp.StageName == 'Registration Slot Date Sent')) {
                  
             opportunitiesToNotify.add(opp);
@@ -36,70 +38,108 @@ trigger OpportunityTrigger on Opportunity (after update) {
                 Contact con = contactMap.get(opp.AccountId);
 
                 String emailSubject;
-        String emailBody;
-        Datetime currentDateTime = System.now(); 
-
-        String presentDate = currentDateTime.format('yyyy-MM-dd'); 
-        String presentTime = currentDateTime.format('HH:mm a'); 
-        Date nextDay = currentDateTime.date().addDays(1); 
-        Date nextDay3 = currentDateTime.date().addDays(3); 
+                String emailBody;
+        
         // Get the next day's date
 
         // If-Else instead of Switch
         if (opp.StageName == 'Site Visit Scheduled') {
             emailSubject = 'Your Site Visit is Scheduled – See You Soon!';
+
+
+            String visitDateStr = opp.Site_Visit_Date__c != null ? String.valueOf(opp.Site_Visit_Date__c) : 'TBD';
+            String visitTimeStr = opp.Site_Visit_Time__c != null ? String.valueOf(opp.Site_Visit_Time__c) : 'TBD';
+
             emailBody = 'Dear ' + con.FirstName + ',\n\n'
                 + 'We’re excited to confirm your site visit for ' + opp.Name + '. Here are the details:\n\n'
-                + '📅 Date: '+ nextDay+'\n'
-                + '⏰ Time: 9:30 AM TO 12:30 PM \n'
+                + '📅 Date: ' + visitDateStr + '\n'
+                + '⏰ Time: ' + visitTimeStr + '\n'
                 + '📍 Location: SWEETHOMES \n\n'
                 + 'Our team will be there to assist you and answer any questions you may have. '
                 + 'If you need to reschedule, please let us know at thirdvizion@gmail.com or 6382734615.\n\n'
                 + 'Looking forward to meeting you!\n\n'
-                + 'Best Regards,\nSweetHome CRM Team\nSweetHomes\n thirdvizion@gmail.com or 6382734615';
+                + 'Best Regards,\nSweetHome CRM Team\nSweetHomes\nthirdvizion@gmail.com or 6382734615';
 
-        } else if (opp.StageName == 'Advance Payment Received') {
+
+        }else if (opp.StageName == 'New') {
+            emailSubject = 'Welcome to SweetHomes – Your Journey Begins!';
+            emailBody = 'Dear ' + con.FirstName + ',\n\n'
+            + 'We are thrilled to welcome you to SweetHomes! We are excited to work with you on your property journey.\n\n'
+            + 'Your opportunity details are as follows:\n'
+            + 'Name: ' + opp.Name + '\n'
+            + 'Stage: ' + opp.StageName + '\n'
+            + 'Account: ' + opp.Account.Name + '\n\n'
+            + 'We will be in touch soon to discuss the next steps. If you have any questions contact us at thirdvizion@gmail.com or 6382734615.\n\n'
+            + 'We look forward to working with you!\n\n'
+            + 'please feel free to reach out.\n\n'
+            + 'Best Regards,\nSweetHome CRM Team\nSweetHomes\nthirdvizion@gmail.com or 6382734615';
+            
+
+        }else if (opp.StageName == 'Advance Payment Received') {
             emailSubject = 'Payment Received – Thank You!';
+            String amountPaid = opp.Advance_Amount__c != null ? String.valueOf(opp.Advance_Amount__c) : 'N/A';
+            String paymentDate = opp.Advance_Payment_Date__c != null ? opp.Advance_Payment_Date__c.format() : 'N/A';
             emailBody = 'Dear ' + con.FirstName + ',\n\n'
                 + 'We have successfully received your advance payment of [Amount] for ' + opp.Name + '. '
                 + 'Thank you for your trust in SweetHomes.\n\n'
                 + 'Here are your payment details:\n'
-                + '💳 Amount Paid: [Amount]\n'
-                + '📅 Date:' +presentDate+ ' \n'
-                + '📝 Transaction ID: [Transaction ID]\n\n'
-                + 'Your next steps will be submiting the  document for verification sent these legal document through email to thirdvizion@gmail.com  '
+                + '💳 Amount Paid: ₹' + amountPaid + '\n'
+                + '📅 Payment Date: ' + paymentDate + '\n'
+                + 'Your next steps will be submitting the  document for verification sent these legal document through email to thirdvizion@gmail.com  '
                 + 'If you have any questions, feel free to reach out.\n\n'
                 + 'Best Regards,\nSweetHome CRM Team\nSweetHomes\nthirdvizion@gmail.com or 6382734615';
 
         } else if (opp.StageName == 'Legal Document Acquisition') {
             emailSubject = 'Important Update – Legal Documents Acquired';
+            String documents = opp.Documents_Submitted__c != null ? opp.Documents_Submitted__c : 'No document details provided';
             emailBody = 'Dear ' + con.FirstName + ',\n\n'
                 + 'We are pleased to inform you that the necessary legal documents for ' + opp.Name + ' have been successfully acquired.\n\n'
                 + 'The documents include:\n'
-                + '📜 Sale Agreement, Title Deed, Buyer Id proof and other documents\n\n'
+                + documents + '\n\n'
                 + 'Please let us know if you would like to review them or require any further clarifications. '
                 + 'You can reach us at thirdvizion@gmail.com or 6382734615.\n\n'
                 + 'Best Regards,\nSweetHome CRM Team\nSweetHomes\nthirdvizion@gmail.com or 6382734615';
 
         } else if (opp.StageName == 'Registration Slot Date Sent') {
             emailSubject = 'Your Property Registration Slot is Confirmed';
+            String slotDate = opp.Registration_Date__c != null ? String.valueOf(opp.Registration_Date__c) : 'To Be Confirmed';
+            String slotTime = 'To Be Confirmed';
+            if (opp.Registration_Time__c != null) {
+                Integer rawHour = opp.Registration_Time__c.hour();
+                Integer hour12;
+                if (rawHour == 0) {
+                    hour12 = 12;
+                } else if (rawHour > 12) {         
+                    hour12 = rawHour - 12;
+                } else {
+                    hour12 = rawHour;
+                }
+                
+                String ampm = rawHour >= 12 ? 'PM' : 'AM';
+                Integer minute = opp.Registration_Time__c.minute();
+                String minuteStr = minute < 10 ? '0' + minute : String.valueOf(minute);
+                slotTime = hour12 + ':' + minuteStr + ' ' + ampm;
+            }
+            String location = opp.Registration_Office_Location__c != null ? opp.Registration_Office_Location__c : 'Registration Office Near your location';
+
             emailBody = 'Dear ' + con.FirstName + ',\n\n'
                 + 'We are happy to inform you that your property registration slot has been scheduled. Here are the details:\n\n'
-                + '📅 Date: '+nextDay3+'\n'
-                + '⏰ Time: 10:00 AM\n'
-                + '🏛 Location: Registration Office Near your location\n\n'
+                + '📅 Date: ' + slotDate + '\n'
+                + '⏰ Time: ' + slotTime + '\n'
+                + '🏛 Location: ' + location + '\n\n'
                 + 'Please ensure you carry all required documents. If you have any queries or need to reschedule, '
                 + 'please contact us at thirdvizion@gmail.com or 6382734615.\n\n'
                 + 'We look forward to completing this final step with you!\n\n'
                 + 'Best Regards,\nSweetHome CRM Team\nSweetHomes\nthirdvizion@gmail.com or 6382734615';
 
-        } else {
+        }else {
             // Default email if StageName does not match predefined cases
             emailSubject = 'Update on Your Property Opportunity';
             emailBody = 'Dear ' + con.FirstName + ',\n\n'
                 + 'Your opportunity status has changed to: ' + opp.StageName + '.\n\n'
                 + 'Please contact us for more details.\n\n'
                 + 'Best regards,\nSweetHome CRM Team \nSweetHomes\nthirdvizion@gmail.com or 6382734615';
+                
         }
 
         // Prepare and add the email message
