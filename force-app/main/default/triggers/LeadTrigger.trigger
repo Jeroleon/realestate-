@@ -63,6 +63,19 @@ trigger LeadTrigger on Lead (after update) {
         insert accountMap.values();
     }
 
+    // ✅ NEW CODE: Query existing Opportunities for inserted Accounts
+    Set<Id> insertedAccountIds = new Set<Id>();
+    for (Account a : accountMap.values()) {
+        insertedAccountIds.add(a.Id);
+    }
+
+    Set<Id> accountsWithOpportunities = new Set<Id>();
+    if (!insertedAccountIds.isEmpty()) {
+        for (Opportunity o : [SELECT Id, AccountId FROM Opportunity WHERE AccountId IN :insertedAccountIds]) {
+            accountsWithOpportunities.add(o.AccountId);
+        }
+    }
+
     // Create Contacts & Opportunities
     List<Contact> contactsToInsert = new List<Contact>();
     List<Opportunity> opportunitiesToInsert = new List<Opportunity>();
@@ -86,15 +99,19 @@ trigger LeadTrigger on Lead (after update) {
             contactsToInsert.add(con);
         }
 
-        // Determine Apartment Type from Lead
-        String aptType = lead.Desired_Apartment_Type__c != null ? lead.Desired_Apartment_Type__c : 'General';
-        Opportunity opp = new Opportunity(
-            Name = lead.LastName + ' ' + aptType,
-            StageName = 'Site Visit Scheduled',
-            CloseDate = Date.today().addDays(30),
-            AccountId = acc.Id
-        );
-        opportunitiesToInsert.add(opp);
+        // ✅ UPDATED: Only create Opportunity if one doesn't already exist
+        if (!accountsWithOpportunities.contains(acc.Id)) {
+            String aptType = lead.Desired_Apartment_Type__c != null ? lead.Desired_Apartment_Type__c : 'General';
+            Opportunity opp = new Opportunity(
+                Name = lead.LastName + ' ' + aptType,
+                StageName = 'Prospecting',
+                CloseDate = Date.today().addDays(30),
+                AccountId = acc.Id
+            );
+            opportunitiesToInsert.add(opp);
+        } else {
+            System.debug('Skipping Opportunity creation for Account: ' + acc.Id + ' (Already exists)');
+        }
     }
 
     if (!contactsToInsert.isEmpty()) {

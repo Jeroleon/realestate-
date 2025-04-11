@@ -7,8 +7,8 @@ trigger OpportunityTrigger on Opportunity (after update) {
         Opportunity oldOpp = Trigger.oldMap.get(opp.Id);
 
         if (oldOpp.StageName != opp.StageName && 
-            (opp.StageName == 'Site Visit Scheduled' ||
-             opp.StageName == 'New' ||
+            (opp.StageName == 'New' ||
+             opp.StageName == 'Site Visit Scheduled' ||
              opp.StageName == 'Advance Payment Received' ||
              opp.StageName == 'Legal Document Acquisition' ||
              opp.StageName == 'Bank Loan' ||
@@ -23,7 +23,7 @@ trigger OpportunityTrigger on Opportunity (after update) {
         // Query Contacts linked to Accounts (fetch only necessary fields)
         Map<Id, Contact> contactMap = new Map<Id, Contact>();
         for (Contact con : [
-            SELECT Id, Email, FirstName, AccountId 
+            SELECT Id, Email, FirstName, AccountId ,Account_Number__c
             FROM Contact 
             WHERE AccountId IN :accountIds
         ]) {
@@ -68,7 +68,7 @@ trigger OpportunityTrigger on Opportunity (after update) {
             + 'Your opportunity details are as follows:\n'
             + 'Name: ' + opp.Name + '\n'
             + 'Stage: ' + opp.StageName + '\n'
-            + 'Account: ' + opp.Account.Name + '\n\n'
+            + 'Account: ' + con.Account_Number__c + '\n\n'
             + 'We will be in touch soon to discuss the next steps. If you have any questions contact us at thirdvizion@gmail.com or 6382734615.\n\n'
             + 'We look forward to working with you!\n\n'
             + 'please feel free to reach out.\n\n'
@@ -137,6 +137,10 @@ trigger OpportunityTrigger on Opportunity (after update) {
             emailSubject = 'Update on Your Property Opportunity';
             emailBody = 'Dear ' + con.FirstName + ',\n\n'
                 + 'Your opportunity status has changed to: ' + opp.StageName + '.\n\n'
+                +'We are pleased to inform you that your loan application with [Bank Name] has been successfully sanctioned.\n\n'
+                + 'Here are the details:\n'
+                +'Loan Amount: [₹X,XX,XXX]\n'
+                +'Loan Account Number: [XXXXXXXXXXXX]\n\n'
                 + 'Please contact us for more details.\n\n'
                 + 'Best regards,\nSweetHome CRM Team \nSweetHomes\nthirdvizion@gmail.com or 6382734615';
                 
@@ -148,6 +152,8 @@ trigger OpportunityTrigger on Opportunity (after update) {
         mail.setSubject(emailSubject);
         mail.setPlainTextBody(emailBody);
         emails.add(mail);
+        System.debug('Contact Email: ' + con.Email);
+
     }
 }
 
@@ -161,6 +167,7 @@ trigger OpportunityTrigger on Opportunity (after update) {
             }
         } else {
             System.debug('No valid emails to send.');
+
         }
     }
 }
