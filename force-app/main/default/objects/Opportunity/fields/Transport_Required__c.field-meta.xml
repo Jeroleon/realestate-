@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Transport_Required__c</fullName>
+    <defaultValue>false</defaultValue>
+    <inlineHelpText>Does the customer require transportation assistance for the site visit?</inlineHelpText>
+    <label>Transport Required</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

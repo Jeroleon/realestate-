@@ -108,7 +108,7 @@ trigger LeadTrigger on Lead (after update) {
                 CloseDate = Date.today().addDays(30),
                 AccountId = acc.Id
             );
-            opportunitiesToInsert.add(opp);
+           opportunitiesToInsert.add(opp);
         } else {
             System.debug('Skipping Opportunity creation for Account: ' + acc.Id + ' (Already exists)');
         }
@@ -118,7 +118,7 @@ trigger LeadTrigger on Lead (after update) {
         insert contactsToInsert;
     }
     if (!opportunitiesToInsert.isEmpty()) {
-        insert opportunitiesToInsert;
+       insert opportunitiesToInsert;
     }
 
     // Send email notification after successful Lead conversion

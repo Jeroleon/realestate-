@@ -68,7 +68,7 @@ trigger OpportunityTrigger on Opportunity (after update) {
             + 'Your opportunity details are as follows:\n'
             + 'Name: ' + opp.Name + '\n'
             + 'Stage: ' + opp.StageName + '\n'
-            + 'Account: ' + con.Account_Number__c + '\n\n'
+            + 'Account Number: ' + con.Account_Number__c + '\n\n'
             + 'We will be in touch soon to discuss the next steps. If you have any questions contact us at thirdvizion@gmail.com or 6382734615.\n\n'
             + 'We look forward to working with you!\n\n'
             + 'please feel free to reach out.\n\n'
