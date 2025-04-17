@@ -1,5 +1,8 @@
 <template>
-    <lightning-card title="Submit Your Interest">
+    <div class="background-wrapper">
+        <h1 class="welcome-heading">Welcome to Sweet Home</h1>
+
+    <lightning-card title="Submit Your Interest" class="form-card">
    
     
         <lightning-input label="firstName" name="firstName" type="text" onchange={handleChange}></lightning-input>
@@ -19,4 +22,5 @@
 
         <lightning-button label="Submit" variant="brand" onclick={handleSubmit}></lightning-button>
     </lightning-card>
+    </div>
 </template>
